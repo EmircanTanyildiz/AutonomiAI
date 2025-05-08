@@ -1,0 +1,114 @@
+﻿@model AutonomiAI.Models.User
+
+@{
+    Layout = "_BlankLayout";
+    ViewData["Title"] = "Register - AutonomiAI";
+}
+
+@section PageStyles {
+    <link rel="stylesheet" href="~/vendor/css/pages/page-auth.css" />
+}
+
+<div class="position-relative">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+        <div class="authentication-inner py-6 mx-4">
+
+            <div class="card p-7">
+                <div class="app-brand justify-content-center mt-5">
+                    <a href="/" class="app-brand-link gap-3">
+                        <img src="~/png/autonomiai_logo.png" alt="Logo" style="height:50px;" />
+                    </a>
+                </div>
+
+                <div class="card-body mt-1">
+                    <h4 class="mb-1">Adventure starts here 🚀</h4>
+                    <p class="mb-5">Make your app management easy and fun!</p>
+
+                    <form asp-action="Register" asp-controller="Account" method="post" id="formAuthentication" class="mb-5">
+
+                        <div class="form-floating form-floating-outline mb-5">
+                            <input asp-for="Name" required class="form-control" id="name" placeholder="Enter your name" />
+                            <label for="name">Name</label>
+                        </div>
+
+                        <div class="form-floating form-floating-outline mb-5">
+                            <input asp-for="Surname" required class="form-control" id="surname" placeholder="Enter your surname" />
+                            <label for="surname">Surname</label>
+                        </div>
+
+                        <div class="form-floating form-floating-outline mb-5">
+                            <input asp-for="Email" required type="email" class="form-control" id="email" placeholder="Enter your email" />
+                            <label for="email">Email</label>
+                        </div>
+
+                        <div class="mb-5 form-password-toggle">
+                            <div class="input-group input-group-merge">
+                                <div class="form-floating form-floating-outline">
+                                    <input asp-for="Password" required type="password" class="form-control" id="password" placeholder="Password" />
+                                    <label for="password">Password</label>
+                                </div>
+                                <span class="input-group-text cursor-pointer">
+                                    <i class="ri-eye-off-line ri-20px"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mb-5 form-password-toggle">
+                            <div class="input-group input-group-merge">
+                                <div class="form-floating form-floating-outline">
+                                    <input name="confirmpassword" required type="password" class="form-control" id="confirmpassword" placeholder="Confirm Password" />
+                                    <label for="confirmpassword">Confirm Password</label>
+                                </div>
+                                <span class="input-group-text cursor-pointer">
+                                    <i class="ri-eye-off-line ri-20px"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input asp-for="PrivacyAndTerms" required class="form-check-input" type="checkbox" id="terms-conditions" />
+                            <label class="form-check-label" for="terms-conditions">
+                                I agree to the <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a>
+                            </label>
+                        </div>
+
+                        <button class="btn btn-primary d-grid w-100" type="submit">Sign up</button>
+                        @if (ViewBag.Error != null)
+                        {
+                            <p class="text-danger mt-2 text-center">@ViewBag.Error</p>
+                        }
+                    </form>
+                    @section Scripts {
+                        <partial name="_ValidationScriptsPartial" />
+                    }
+
+                    <p class="text-center mb-5">
+                        <span>Already have an account?</span>
+                        <a asp-controller="Account" asp-action="Login">Sign in instead</a>
+                    </p>
+                </div>
+            </div>
+
+            <img src="~/img/illustrations/tree-3.png" alt="" class="authentication-image-object-left d-none d-lg-block" />
+            <img src="~/img/illustrations/auth-basic-mask-light.png" alt="" class="authentication-image d-none d-lg-block" height="172" />
+            <img src="~/img/illustrations/tree.png" alt="" class="authentication-image-object-right d-none d-lg-block" />
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const form = document.getElementById('formAuthentication');
+                    const pwd = document.getElementById('password');
+                    const cpwd = document.getElementById('confirmpassword');
+                    form.addEventListener('submit', e => {
+                        const errs = [];
+                        if (pwd.value !== cpwd.value) errs.push("Passwords do not match.");
+                        if (errs.length) {
+                            e.preventDefault();
+                            alert(errs.join("\n"));
+                        }
+                    });
+                });
+            </script>
+
+        </div>
+    </div>
+</div>

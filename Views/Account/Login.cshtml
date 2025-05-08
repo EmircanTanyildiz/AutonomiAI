@@ -1,0 +1,68 @@
+﻿@model AutonomiAI.Models.User
+
+@{
+    Layout = "_BlankLayout";
+    ViewData["Title"] = "Login - AutonomiAI";
+}
+
+@section PageStyles {
+    <link rel="stylesheet" href="~/vendor/css/pages/page-auth.css" />
+}
+
+<div class="position-relative">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+        <div class="authentication-inner py-6 mx-4">
+            <div class="card p-7">
+                <div class="app-brand justify-content-center mt-5">
+                    <a href="/" class="app-brand-link gap-3">
+                        <img src="~/png/autonomiai_logo.png" alt="Logo" style="height:50px;" />
+                    </a>
+                </div>
+
+                <div class="card-body mt-1">
+                    <h4 class="mb-1">Welcome to @TempData.Peek("appName")!</h4>
+                    <p class="mb-5">Please sign-in to your account</p>
+
+                    <form asp-action="Login" asp-controller="Account" method="post" id="formAuthentication" class="mb-5">
+                        <div class="form-floating form-floating-outline mb-5">
+                            <input asp-for="Email" required class="form-control" id="email" placeholder="Enter your email" autofocus />
+                            <label for="email">Email</label>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-5 form-password-toggle">
+                            <div class="input-group input-group-merge">
+                                <div class="form-floating form-floating-outline">
+                                    <input asp-for="Password" required type="password" class="form-control" id="password" placeholder="Password" />
+                                    <label for="password">Password</label>
+                                    <span asp-validation-for="Password" class="text-danger"></span>
+                                </div>
+                                <span class="input-group-text cursor-pointer">
+                                    <i class="ri-eye-off-line ri-20px"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary d-grid w-100" type="submit">Login</button>
+                        @if (ViewBag.Error != null)
+                        {
+                            <p class="text-danger mt-2 text-center">@ViewBag.Error</p>
+                        }
+                    </form>
+                    @section Scripts {
+                        <partial name="_ValidationScriptsPartial" />
+                    }
+
+                    <p class="text-center mb-5">
+                        <span>New on our platform?</span>
+                        <a asp-controller="Account" asp-action="Register">Create an account</a>
+                    </p>
+                </div>
+            </div>
+
+            <img src="~/img/illustrations/tree-3.png" alt="" class="authentication-image-object-left d-none d-lg-block" />
+            <img src="~/img/illustrations/auth-basic-mask-light.png" alt="" class="authentication-image d-none d-lg-block" height="172" />
+            <img src="~/img/illustrations/tree.png" alt="" class="authentication-image-object-right d-none d-lg-block" />
+        </div>
+    </div>
+</div>

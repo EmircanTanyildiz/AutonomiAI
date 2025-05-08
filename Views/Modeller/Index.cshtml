@@ -1,0 +1,91 @@
+﻿@model List<AutonomiAI.Models.AIModel>
+@{
+    ViewData["Title"] = "Yapay Zeka Modelleri";
+    var datasets = ViewBag.Datasets as List<AutonomiAI.Models.Dataset>;
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modelEkleModal">Yeni Model Oluştur</button>
+    <button class="btn btn-outline-secondary" onclick="guncelleTumModeller()">Tüm Modelleri Güncelle</button>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modelEkleModal" tabindex="-1" aria-labelledby="modelEkleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="YeniModelOlustur" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yeni Model Oluştur</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Model Adı</label>
+                        <input type="text" name="modelAdi" required class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label>Veri Seti</label>
+                        <select name="datasetId" class="form-select" required>
+                            @if (datasets != null)
+                            {
+                                foreach (var ds in datasets)
+                                {
+                                    <option value="@ds.VerisetiId">@ds.VerisetiAdi</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Oluştur</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Yapay Zeka Modelleri</h5>
+
+        @if (Model != null && Model.Any())
+        {
+            <ul class="list-group">
+                @foreach (var m in Model)
+                {
+                    <li class="list-group-item">
+                        <strong>@m.ModelAdi</strong> - @m.AlgoritmaTuru<br />
+                        <small>
+                            Oluşturulma: @m.OlusturmaTarihi.ToString("g")<br />
+                            Doğruluk: @(m.Dogruluk?.ToString("P2") ?? "-")<br />
+                            Kayıp: @(m.Kayip?.ToString("F4") ?? "-")
+                        </small>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>Henüz bir model oluşturulmamış.</p>
+        }
+    </div>
+</div>
+
+<script>
+    async function guncelleTumModeller() {
+        if (!confirm("Tüm modelleri güncellemek istiyor musunuz?")) return;
+
+        const response = await fetch('/Modeller/GuncelleTumu', {
+            method: 'POST'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert("Tüm modeller başarıyla güncellendi.");
+            location.reload();
+        } else {
+            alert("Hata: " + result.message);
+        }
+    }
+</script>

@@ -1,0 +1,207 @@
+﻿@model AutonomiAI.Models.User
+@using AutonomiAI.Models
+@{
+    ViewData["Title"] = "Kullanıcı Paneli";
+    // Null-safe koleksiyonlar
+    var aiModels = Model?.AIModels ?? new List<AIModel>();
+    var tests = Model?.YapilanTestler ?? new List<YapilanTest>();
+    var datasets = Model?.Datasets ?? new List<Dataset>();
+
+    // Son oluşturulan 3 AI modelini alıyoruz
+    var recentModels = aiModels
+        .OrderByDescending(m => m.OlusturmaTarihi)
+        .Take(3)
+        .ToList();
+
+    // Icons for recent models
+    var miscIcons = new[] { "zipcar.png", "bitbank.png", "aviato.png" };
+
+    // En iyi model
+    var bestModel = aiModels
+        .OrderByDescending(m => m.Dogruluk ?? 0f)
+        .FirstOrDefault();
+
+    // Ortalama doğruluk ve yüzde hesaplama
+    var avgAccuracy = aiModels
+        .Where(m => m.Dogruluk.HasValue)
+        .Select(m => m.Dogruluk.Value)
+        .DefaultIfEmpty(0f)
+        .Average();
+    float avgPct = avgAccuracy * 100f;
+
+    // Benzersiz algoritma türü sayısı
+    var algorithmTypeCount = aiModels
+        .Select(m => m.AlgoritmaTuru)
+        .Distinct()
+        .Count();
+}
+
+<h1 class="mb-4">Merhaba, @Model?.Name @Model?.Surname!</h1>
+<div class="row gy-6">
+    <!-- Congratulations card -->
+    <div class="col-md-12 col-lg-4">
+        <div class="card">
+            <div class="card-body text-nowrap">
+                <h5 class="card-title mb-0">Tebrikler @Model?.Name! 🎉</h5>
+                <p class="mb-2">En İyi AI Modeli</p>
+                @if (bestModel != null)
+                {
+                    <h4 class="text-primary mb-0">@bestModel.Dogruluk.Value.ToString("P2")</h4>
+                    <p class="mb-2">@bestModel.ModelAdi</p>
+                }
+                else
+                {
+                    <h4 class="text-muted mb-0">Henüz modeliniz yok</h4>
+                    <p class="mb-2">Model oluşturmak için “Yeni Model” sayfasını kullanın</p>
+                }
+            </div>
+            <img src="~/img/illustrations/trophy.png" class="position-absolute bottom-0 end-0 me-5 mb-5" width="83" alt="trophy">
+        </div>
+    </div>
+    <!--/ Congratulations card -->
+    <!-- İstatistik Kartı -->
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title m-0">İstatistikler</h5>
+                <div class="dropdown">
+                    <button class="btn text-muted p-0" type="button" data-bs-toggle="dropdown">
+                        <i class="ri-more-2-line ri-24px"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item" href="#">Refresh</a>
+                        <a class="dropdown-item" href="#">Share</a>
+                        <a class="dropdown-item" href="#">Update</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row g-6 text-center">
+                    <div class="col-md-3 col-6">
+                        <p class="mb-0">Model Sayısı</p>
+                        <h5 class="mb-0">@aiModels.Count()</h5>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <p class="mb-0">Test</p>
+                        <h5 class="mb-0">@tests.Count()</h5>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <p class="mb-0">Veri Seti</p>
+                        <h5 class="mb-0">@datasets.Count()</h5>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <p class="mb-0">Algoritma Türü</p>
+                        <h5 class="mb-0">@algorithmTypeCount</h5>
+                    </div>
+                </div>
+                <p class="small mb-0 mt-3">
+                    Ortalama Doğruluk: <span class="h6">@avgPct.ToString("F1")%</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <!--/ İstatistik Kartı -->
+    <!-- Weekly Overview Chart Kartı -->
+    <div class="col-xl-4 col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-1">Weekly Overview</h5>
+            </div>
+            <div class="card-body">
+                <div id="weeklyOverviewChart"></div>
+                <div class="mt-3">
+                    @if (bestModel != null)
+                    {
+                        <h4>Doğruluk: @bestModel.Dogruluk.Value.ToString("P2")</h4>
+                    }
+                    else
+                    {
+                        <h4>Doğruluk: -</h4>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/ Weekly Overview Chart Kartı -->
+    <!-- En Son Modeller Kartı -->
+    <div class="col-xl-4 col-md-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title m-0">En Son Modeller</h5>
+            </div>
+            <div class="card-body pt-lg-8">
+                @if (recentModels.Any())
+                {
+                    <ul class="p-0 m-0">
+                        @for (int i = 0; i < recentModels.Count; i++)
+                        {
+                            var m = recentModels[i];
+                            var pct = (m.Dogruluk ?? 0f) * 100f;
+                            var icon = miscIcons.Length > i ? miscIcons[i] : "placeholder.png";
+                            <li class="d-flex mb-6">
+                                <div class="avatar flex-shrink-0 bg-lightest rounded me-3">
+                                    <img src="~/img/icons/misc/@icon" alt="">
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <h6 class="mb-0">@m.ModelAdi</h6>
+                                        <p class="mb-0">@m.AlgoritmaTuru</p>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-2">@pct.ToString("F2")%</h6>
+                                        <div class="progress bg-label-primary" style="height: 4px;">
+                                            <div class="progress-bar bg-primary"
+                                                 style="width:@pct.ToString("F0")%"
+                                                 role="progressbar"
+                                                 aria-valuenow="@pct.ToString("F0")"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted">Henüz oluşturulmuş modeliniz bulunmuyor.</p>
+                }
+            </div>
+        </div>
+    </div>
+    <!--/ En Son Modeller Kartı -->
+    <!-- Dört Kartı Bölümü -->
+    <div class="col-xl-4 col-md-6">
+        <div class="row gy-6">
+            <!-- Toplam Proje Kartı -->
+            <div class="col-sm-6">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-1">Toplam Proje</h6>
+                        <i class="ri-pie-chart-2-line ri-24px"></i>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="mb-0">@aiModels.Count()</h4>
+                    </div>
+                </div>
+            </div>
+            <!--/ Toplam Proje Kartı -->
+            <!-- Toplam Test Kartı -->
+            <div class="col-sm-6">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-1">Toplam Test</h6>
+                        <i class="ri-file-list-3-line ri-24px"></i>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="mb-0">@tests.Count()</h4>
+                    </div>
+                </div>
+            </div>
+            <!--/ Toplam Test Kartı -->
+        </div>
+    </div>
+    <!--/ Dört Kartı Bölümü -->
+</div>

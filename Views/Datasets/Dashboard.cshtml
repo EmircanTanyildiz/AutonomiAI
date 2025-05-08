@@ -1,0 +1,107 @@
+﻿@model AutonomiAI.Models.User
+
+@{
+    string[] avatarFiles = { "1.png", "2.png", "3.png", "4.png", "5.png", "6.png", "7.png" };
+    int idx = 0;
+}
+
+<div class="container mt-4">
+
+    <!-- Ekle Butonu -->
+    <div class="row mb-3">
+        <div class="col-12 text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadDatasetModal">
+                <i class="ri-folder-upload-line me-1"></i> Veri Seti Ekle
+            </button>
+        </div>
+    </div>
+
+    <!-- Dataset Tablosu -->
+    <div class="card overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle table-bordered table-striped text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th>User</th>
+                        <th>Uploaded At</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Datasets != null && Model.Datasets.Any())
+                    {
+                        foreach (var ds in Model.Datasets)
+                        {
+                            var avatar = $"~/img/avatars/{avatarFiles[idx % avatarFiles.Length]}";
+                            idx++;
+
+                            <tr>
+                                <td class="text-start">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-sm me-3">
+                                            <img src="@avatar" alt="Avatar" class="rounded-circle">
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 text-truncate">@ds.VerisetiAdi</h6>
+                                            <small class="text-muted">&#64;dataset</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>@ds.YuklemeTarihi.ToString("g")</td>
+                                <td>
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        <i class="ri-database-2-line text-info ri-22px me-1"></i>
+                                        <span>Dataset</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-label-success rounded-pill">Active</span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4">No datasets found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="uploadDatasetModal" tabindex="-1" aria-labelledby="uploadDatasetModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadDatasetModalLabel">Veri Seti Yükle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Upload" asp-controller="Datasets" enctype="multipart/form-data" method="post">
+                    <div class="mb-3">
+                        <label for="VerisetiAdi" class="form-label">Veri Seti Adı</label>
+                        <input type="text" name="VerisetiAdi" required class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="VeriTipi" class="form-label">Veri Tipi</label>
+                        <input type="text" name="VeriTipi" required class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Dosyalar" class="form-label">Klasör Seç</label>
+                        <input type="file" name="Dosyalar" webkitdirectory directory multiple class="form-control" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Yükle</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
